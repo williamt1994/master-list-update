@@ -13,32 +13,41 @@
     }
     h2 {
       font-size: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 4px;
       color: #111827;
     }
-    .write-btn {
+    .subtitle {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+    .run-btn {
       background: #2563eb;
       color: white;
       border: none;
-      padding: 10px 18px;
-      border-radius: 6px;
+      padding: 11px 18px;
+      border-radius: 7px;
       font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
       width: 100%;
+      transition: background 0.15s;
     }
-    .write-btn:hover {
-      background: #1d4ed8;
-    }
+    .run-btn:hover { background: #1d4ed8; }
+    .run-btn:disabled { background: #93c5fd; cursor: not-allowed; }
+
     #status {
       margin-top: 14px;
-      font-size: 13px;
-      color: #16a34a;
+      font-size: 12px;
+      min-height: 18px;
+      color: #374151;
     }
+    #status.success { color: #16a34a; }
+    #status.error   { color: #dc2626; }
+    #status.running { color: #2563eb; }
 
     /* Split button */
-    .split-btn-wrapper {
-      margin-top: 24px;
-    }
+    .split-btn-wrapper { margin-top: 28px; }
     .split-btn-label {
       font-size: 11px;
       font-weight: 600;
@@ -69,60 +78,72 @@
       color: #16a34a;
       border-right: 1.5px solid #d1d5db;
     }
-    .split-btn .keep:hover {
-      background: #dcfce7;
-    }
+    .split-btn .keep:hover  { background: #dcfce7; }
     .split-btn .clear {
       background: #fff7ed;
       color: #ea580c;
     }
-    .split-btn .clear:hover {
-      background: #ffedd5;
-    }
+    .split-btn .clear:hover { background: #ffedd5; }
   </style>
 </head>
 <body>
   <h2>🏥 Census Panel</h2>
-  <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">
-    Hello World demo — click the button to write to cell A1.
-  </p>
-  <button class="write-btn" onclick="writeHello()">Write to Sheet</button>
+  <p class="subtitle">Master List + Epic Update</p>
+
+  <button class="run-btn" id="runBtn" onclick="runCensusScript()">▶ Run Update</button>
   <div id="status"></div>
 
   <div class="split-btn-wrapper">
     <div class="split-btn-label">Formatting</div>
     <div class="split-btn">
-      <button class="keep" onclick="handleKeep()">✓ Keep</button>
+      <button class="keep"  onclick="handleKeep()">✓ Keep</button>
       <button class="clear" onclick="handleClear()">✕ Clear</button>
     </div>
   </div>
 
   <script>
-    Office.onReady(function () {
+    Office.onReady(function() {
       console.log("Office.js ready");
     });
 
-    function writeHello() {
-      Excel.run(function (context) {
-        var sheet = context.workbook.worksheets.getActiveWorksheet();
-        var range = sheet.getRange("A1");
-        range.values = [["Hello from Census Panel!"]];
-        range.format.font.bold = true;
-        range.format.font.color = "#2563eb";
-        return context.sync().then(function () {
-          document.getElementById("status").innerText = "✅ Written to A1!";
-        });
-      }).catch(function (error) {
-        document.getElementById("status").innerText = "❌ Error: " + error.message;
+    function setStatus(msg, type) {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.className = type || "";
+    }
+
+    function runCensusScript() {
+      const btn = document.getElementById("runBtn");
+      btn.disabled = true;
+      setStatus("⏳ Running update...", "running");
+
+      Excel.run(function(context) {
+        // Trigger the Office Script named "censusParser" (must match exactly
+        // the script name saved in the workbook's Automate tab)
+        return context.workbook.runScript("censusParser", [])
+          .then(function() {
+            setStatus("✅ Census updated successfully.", "success");
+          });
+      })
+      .catch(function(error) {
+        // runScript not available in all tenants — fall back with clear message
+        if (error.message && error.message.includes("runScript")) {
+          setStatus("⚠️ runScript not enabled. Run via Automate tab for now.", "error");
+        } else {
+          setStatus("❌ Error: " + error.message, "error");
+        }
+      })
+      .finally(function() {
+        btn.disabled = false;
       });
     }
 
     function handleKeep() {
-      document.getElementById("status").innerText = "✅ Formatting kept.";
+      setStatus("✅ Formatting kept.", "success");
     }
 
     function handleClear() {
-      document.getElementById("status").innerText = "🧹 Formatting cleared.";
+      setStatus("🧹 Formatting cleared.", "");
     }
   </script>
 </body>
