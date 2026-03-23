@@ -16,7 +16,7 @@
       margin-bottom: 16px;
       color: #111827;
     }
-    button {
+    .write-btn {
       background: #2563eb;
       color: white;
       border: none;
@@ -26,13 +26,58 @@
       cursor: pointer;
       width: 100%;
     }
-    button:hover {
+    .write-btn:hover {
       background: #1d4ed8;
     }
     #status {
       margin-top: 14px;
       font-size: 13px;
       color: #16a34a;
+    }
+
+    /* Split button */
+    .split-btn-wrapper {
+      margin-top: 24px;
+    }
+    .split-btn-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .split-btn {
+      display: flex;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1.5px solid #d1d5db;
+      width: 100%;
+    }
+    .split-btn button {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 0;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .split-btn .keep {
+      background: #f0fdf4;
+      color: #16a34a;
+      border-right: 1.5px solid #d1d5db;
+    }
+    .split-btn .keep:hover {
+      background: #dcfce7;
+    }
+    .split-btn .clear {
+      background: #fff7ed;
+      color: #ea580c;
+    }
+    .split-btn .clear:hover {
+      background: #ffedd5;
     }
   </style>
 </head>
@@ -41,8 +86,16 @@
   <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">
     Hello World demo — click the button to write to cell A1.
   </p>
-  <button onclick="writeHello()">Write to Sheet</button>
+  <button class="write-btn" onclick="writeHello()">Write to Sheet</button>
   <div id="status"></div>
+
+  <div class="split-btn-wrapper">
+    <div class="split-btn-label">Formatting</div>
+    <div class="split-btn">
+      <button class="keep" onclick="handleKeep()">✓ Keep</button>
+      <button class="clear" onclick="handleClear()">✕ Clear</button>
+    </div>
+  </div>
 
   <script>
     Office.onReady(function () {
@@ -62,6 +115,14 @@
       }).catch(function (error) {
         document.getElementById("status").innerText = "❌ Error: " + error.message;
       });
+    }
+
+    function handleKeep() {
+      document.getElementById("status").innerText = "✅ Formatting kept.";
+    }
+
+    function handleClear() {
+      document.getElementById("status").innerText = "🧹 Formatting cleared.";
     }
   </script>
 </body>
