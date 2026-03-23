@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Census Panel</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      padding: 20px;
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+    h2 {
+      font-size: 16px;
+      margin-bottom: 16px;
+      color: #111827;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    #status {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #16a34a;
+    }
+  </style>
+</head>
+<body>
+  <h2>🏥 Census Panel</h2>
+  <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">
+    Hello World demo — click the button to write to cell A1.
+  </p>
+  <button onclick="writeHello()">Write to Sheet</button>
+  <div id="status"></div>
+
+  <script>
+    Office.onReady(function () {
+      console.log("Office.js ready");
+    });
+
+    function writeHello() {
+      Excel.run(function (context) {
+        var sheet = context.workbook.worksheets.getActiveWorksheet();
+        var range = sheet.getRange("A1");
+        range.values = [["Hello from Census Panel!"]];
+        range.format.font.bold = true;
+        range.format.font.color = "#2563eb";
+        return context.sync().then(function () {
+          document.getElementById("status").innerText = "✅ Written to A1!";
+        });
+      }).catch(function (error) {
+        document.getElementById("status").innerText = "❌ Error: " + error.message;
+      });
+    }
+  </script>
+</body>
+</html>
